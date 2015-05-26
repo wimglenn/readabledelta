@@ -29,7 +29,6 @@ class TestReadableDelta(TestCase):
         self.assertEqual(actual, expected)
 
     def test_skips_zero_values(self):
-        actual = unicode(readabledelta(seconds=60 + 60*60))
-        expected = '1 hour and 1 minute'
+        actual = unicode(readabledelta(seconds=3 + 60*60))
+        expected = '1 hour and 3 seconds'
         self.assertEqual(actual, expected)
-
