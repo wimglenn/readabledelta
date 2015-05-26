@@ -21,3 +21,8 @@ class TestReadableDelta(TestCase):
     def test_instantiate_from_classmethod(self):
         dt_readable_from_dt_original = readabledelta.from_timedelta(self.dt_original)
         self.assertEqual(dt_readable_from_dt_original, self.dt_readable)
+
+    def test_creates_human_readable_string_when_formatted(self):
+        actual = '{}'.format(self.dt_readable)
+        expected = '1 year, 35 days, 5 hours, 6 minutes, 7 seconds'
+        self.assertEqual(actual, expected)
