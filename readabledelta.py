@@ -19,14 +19,17 @@ def to_human_readable(delta, include_microseconds=False, include_sign=True):
     data['microseconds'] = delta.microseconds
 
     output = ['{} {}'.format(data[k], k[:-1] if data[k] == 1 else k) for k in keys if data[k] != 0]
-    left, right = output[:-1], output[-1:]
-    try:
-        result = ', '.join(left) + ' and ' + right[0]
-    except IndexError:
+
+    if not output:
         result = 'now'
+    elif len(output) == 1:
+        result, = output
     else:
-        if include_sign and negative:
-            result = '-' + result
+        left, right = output[:-1], output[-1:]
+        result = ', '.join(left) + ' and ' + right[0]
+
+    if include_sign and negative:
+        result = '-' + result
 
     return result
 
