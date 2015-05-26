@@ -1,3 +1,4 @@
+from __future__ import print_function
 from __future__ import unicode_literals
 
 from datetime import timedelta
@@ -9,8 +10,8 @@ from readabledelta import readabledelta
 class TestReadableDelta(TestCase):
 
     def setUp(self):
-        self.dt_original = timedelta(days=400, hours=5, minutes=6, seconds=7, microseconds=8)
-        self.dt_readable = readabledelta(days=400, hours=5, minutes=6, seconds=7, microseconds=8)
+        self.dt_original = timedelta(days=400, hours=5, minutes=1, seconds=7, microseconds=8)
+        self.dt_readable = readabledelta(days=400, hours=5, minutes=1, seconds=7, microseconds=8)
 
     def test_is_a_timedelta(self):
         self.assertIsInstance(self.dt_readable, timedelta)
@@ -24,5 +25,11 @@ class TestReadableDelta(TestCase):
 
     def test_creates_human_readable_string_when_formatted(self):
         actual = '{}'.format(self.dt_readable)
-        expected = '1 year, 35 days, 5 hours, 6 minutes, 7 seconds'
+        expected = '1 year, 35 days, 5 hours, 1 minute and 7 seconds'
         self.assertEqual(actual, expected)
+
+    def test_skips_zero_values(self):
+        actual = unicode(readabledelta(seconds=60 + 60*60))
+        expected = '1 hour and 1 minute'
+        self.assertEqual(actual, expected)
+

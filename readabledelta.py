@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 
-def to_human_readable(delta, include_microseconds=False):
+def to_human_readable(delta, include_microseconds=False, include_sign=True):
+    negative = delta < timedelta(0)
+    delta = abs(delta)
+
     keys = 'years', 'days', 'hours', 'minutes', 'seconds'
     if include_microseconds:
         keys += 'microseconds',
@@ -16,7 +19,14 @@ def to_human_readable(delta, include_microseconds=False):
     data['microseconds'] = delta.microseconds
 
     output = ['{} {}'.format(data[k], k[:-1] if data[k] == 1 else k) for k in keys if data[k] != 0]
-    result = ', '.join(output)
+    left, right = output[:-1], output[-1:]
+    try:
+        result = ', '.join(left) + ' and ' + right[0]
+    except IndexError:
+        result = 'now'
+    else:
+        if include_sign and negative:
+            result = '-' + result
 
     return result
 
