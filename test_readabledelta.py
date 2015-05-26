@@ -52,3 +52,9 @@ class TestReadableDelta(TestCase):
         plus_5_seconds = readabledelta.from_timedelta(dt_after - dt_before)
         self.assertEqual(unicode(minus_5_seconds), '-5 seconds')
         self.assertEqual(unicode(plus_5_seconds), '5 seconds')
+
+    def test_can_instantiate_with_years(self):
+        rd1 = readabledelta(years=1, hours=1)
+        rd2 = readabledelta(days=365, hours=1)
+        self.assertEqual(rd1, rd2)
+        self.assertEqual(unicode(rd1), unicode(rd2))

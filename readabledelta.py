@@ -3,7 +3,52 @@ from __future__ import unicode_literals
 from datetime import timedelta
 
 
-def to_human_readable(delta, include_microseconds=False, include_sign=True):
+class readabledelta(timedelta):
+
+    def __new__(cls, *args, **kwargs):
+        years = kwargs.pop('years', 0)
+        if 'days' in kwargs:
+            kwargs['days'] += 365 * years
+        elif years:
+            args = (365 * years + (args[0] if args else 0),) + args[1:]
+        self = timedelta.__new__(cls, *args, **kwargs)
+        return self
+
+    @classmethod
+    def from_timedelta(cls, dt):
+        return cls(days=dt.days, seconds=dt.seconds, microseconds=dt.microseconds)
+
+    def __str__(self):
+        return to_string(self)
+
+    def __add__(self, other):
+        if isinstance(other, timedelta):
+            return readabledelta(
+                self.days + other.days,
+                self.seconds + other.seconds,
+                self.microseconds + other.microseconds,
+            )
+        return NotImplemented
+
+    __radd__ = __add__
+
+    def __sub__(self, other):
+        if isinstance(other, timedelta):
+            return readabledelta(
+                self.days - other.days,
+                self.seconds - other.seconds,
+                self.microseconds - other.microseconds,
+            )
+        return NotImplemented
+
+    def __abs__(self):
+        return -self if self.days < 0 else self
+
+    def __neg__(self):
+        return readabledelta(-self.days, -self.seconds, -self.microseconds)
+
+
+def to_string(delta, include_microseconds=False, include_sign=True):
     negative = delta < timedelta(0)
     delta = abs(delta)
 
@@ -32,13 +77,3 @@ def to_human_readable(delta, include_microseconds=False, include_sign=True):
         result = '-' + result
 
     return result
-
-
-class readabledelta(timedelta):
-
-    @classmethod
-    def from_timedelta(cls, dt):
-        return cls(days=dt.days, seconds=dt.seconds, microseconds=dt.microseconds)
-
-    def __str__(self):
-        return to_human_readable(self)
