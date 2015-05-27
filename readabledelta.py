@@ -10,7 +10,8 @@ class readabledelta(timedelta):
         if 'days' in kwargs:
             kwargs['days'] += 365 * years
         elif years:
-            args = (365 * years + (args[0] if args else 0),) + args[1:]
+            arg0 = args[0] if args else 0
+            args = (365 * years + arg0,) + args[1:]
         self = timedelta.__new__(cls, *args, **kwargs)
         return self
 
@@ -41,11 +42,52 @@ class readabledelta(timedelta):
             )
         return NotImplemented
 
+    def __rsub__(self, other):
+        if isinstance(other, timedelta):
+            return -self + other
+        return NotImplemented
+
     def __abs__(self):
         return -self if self.days < 0 else self
 
     def __neg__(self):
         return readabledelta(-self.days, -self.seconds, -self.microseconds)
+
+    def __mul__(self, other):
+        if isinstance(other, int):
+            return readabledelta(
+                self.days * other,
+                self.seconds * other,
+                self.microseconds * other,
+            )
+        return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __floordiv__(self, other):
+        if not isinstance(other, (int, timedelta)):
+            return NotImplemented
+        usec = delta_to_microseconds(self)
+        if isinstance(other, timedelta):
+            return usec // delta_to_microseconds(other)
+        elif isinstance(other, int):
+            return readabledelta(0, 0, usec // other)
+
+    def __mod__(self, other):
+        if isinstance(other, timedelta):
+            r = delta_to_microseconds(self) % delta_to_microseconds(other)
+            return readabledelta(0, 0, r)
+        return NotImplemented
+
+    def __divmod__(self, other):
+        if isinstance(other, timedelta):
+            q, r = divmod(delta_to_microseconds(self), delta_to_microseconds(other))
+            return q, readabledelta(0, 0, r)
+        return NotImplemented
+
+
+def delta_to_microseconds(td):
+    return (td.days * (24*60*60) + td.seconds) * 1000000 + td.microseconds
 
 
 def to_string(delta, include_microseconds=False, include_sign=True):

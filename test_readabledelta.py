@@ -58,3 +58,21 @@ class TestReadableDelta(TestCase):
         rd2 = readabledelta(days=365, hours=1)
         self.assertEqual(rd1, rd2)
         self.assertEqual(unicode(rd1), unicode(rd2))
+
+    def test_arithmetic_preserves_type(self):
+        rd, td = self.rd, self.td
+        self.assertIsInstance(rd, readabledelta)
+        self.assertIsInstance(rd + td, readabledelta)
+        self.assertIsInstance(td + rd, readabledelta)
+        self.assertIsInstance(rd - td, readabledelta)
+        self.assertIsInstance(td - rd, readabledelta)
+        self.assertIsInstance(rd * 2, readabledelta)
+        self.assertIsInstance(rd // 2, readabledelta)
+        rd += td
+        self.assertIsInstance(rd, readabledelta)
+        rd -= td
+        self.assertIsInstance(rd, readabledelta)
+        rd *= 2
+        self.assertIsInstance(rd, readabledelta)
+        rd //= 2
+        self.assertIsInstance(rd, readabledelta)
