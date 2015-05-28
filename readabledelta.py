@@ -21,8 +21,10 @@ class readabledelta(timedelta):
     def from_timedelta(cls, dt):
         return cls(days=dt.days, seconds=dt.seconds, microseconds=dt.microseconds)
 
-    def __str__(self):
+    def __unicode__(self):
         return to_string(self)
+
+    __str__ = __unicode__
 
 
 def to_string(delta, include_microseconds=False, include_sign=False):

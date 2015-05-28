@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 from datetime import timedelta
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO  # Python 3
 from unittest import TestCase
 
 from readabledelta import readabledelta
@@ -39,7 +42,7 @@ class TestReadableDelta(TestCase):
         self.assertEqual(actual, expected)
 
     def test_skips_zero_values(self):
-        actual = unicode(readabledelta(seconds=3 + 60*60))
+        actual = str(readabledelta(seconds=3 + 60*60))
         expected = '1 hour and 3 seconds'
         self.assertEqual(actual, expected)
 
@@ -50,7 +53,7 @@ class TestReadableDelta(TestCase):
         rd1 = readabledelta(years=1, hours=1)
         rd2 = readabledelta(days=365, hours=1)
         self.assertEqual(rd1, rd2)
-        self.assertEqual(unicode(rd1), unicode(rd2))
+        self.assertEqual(str(rd1), str(rd2))
 
     def test_can_add_to_datetime(self):
         actual = self.dt + self.rd
