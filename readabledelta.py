@@ -1,8 +1,9 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals, division
 
+from collections import OrderedDict
 from datetime import timedelta
 
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 
 
 class readabledelta(timedelta):
@@ -27,32 +28,45 @@ class readabledelta(timedelta):
     __str__ = __unicode__
 
 
-def to_string(delta, include_microseconds=False, include_sign=False):
+def to_string(delta, include_sign=False):
     negative = delta < timedelta(0)
     delta = abs(delta)
 
-    keys = 'years', 'days', 'hours', 'minutes', 'seconds'
-    if include_microseconds:
-        keys += 'microseconds',
-
-    # timedeltas are normalised to just days, seconds, microseconds in cpython
-    data = {}
+    # The unique and normalized way Python timedeltas are stored internally is: days, seconds, microseconds
+    # The calculations below rebase onto more human friendly keys
+    keys = 'years', 'weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds', 'microseconds'
+    data = OrderedDict.fromkeys(keys, 0)
+    # rebase days onto years, weeks, days
     data['years'], data['days'] = divmod(delta.days, 365)
-    data['hours'], _minutes = divmod(delta.seconds, 60*60)
-    data['minutes'], data['seconds'] = divmod(_minutes, 60)
-    data['microseconds'] = delta.microseconds
+    data['weeks'], data['days'] = divmod(data['days'], 7)
+    # rebase seconds onto hours, minutes, seconds
+    data['hours'], data['seconds'] = divmod(delta.seconds, 60*60)
+    data['minutes'], data['seconds'] = divmod(data['seconds'], 60)
+    # rebase microseconds onto milliseconds, microseconds
+    data['milliseconds'], data['microseconds'] = divmod(delta.microseconds, 1000)
 
-    output = ['{} {}'.format(data[k], k[:-1] if data[k] == 1 else k) for k in keys if data[k] != 0]
+    # round to 2 significant "digits"
+    try:
+        first_significant_unit, first_significant_value = next((k,v) for (k,v) in data.items() if v > 0)
+    except StopIteration:
+        assert delta == timedelta(0)
+        assert set(data.values()) == {0}
+        return 'an instant'
 
-    if not output:
-        result = 'now'
-    elif len(output) == 1:
-        result, = output
-    else:
-        left, right = output[:-1], output[-1:]
-        result = ', '.join(left) + ' and ' + right[0]
+    if first_significant_unit == 'microseconds':
+        result = '{} microsecond{}'.format(first_significant_value, '' if first_significant_value == 1 else 's')
+    elif first_significant_unit == 'milliseconds':
+        result = ''
 
     if include_sign and negative:
         result = '-' + result
 
     return result
+
+
+# TODO: better test suite
+#       wheel packaging
+#       travis CI
+#       coverage
+#       docs
+#       add arithmetic operators
