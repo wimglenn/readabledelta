@@ -1,18 +1,18 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import unittest
 from datetime import datetime
 from datetime import timedelta
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO  # Python 3
-from unittest import TestCase
 
 from readabledelta import readabledelta
 
 
-class TestReadableDelta(TestCase):
+class TestReadableDelta(unittest.TestCase):
 
     def setUp(self):
         self.dt = datetime(year=1982, month=3, day=19)
@@ -25,13 +25,16 @@ class TestReadableDelta(TestCase):
     def test_has_equality_with_original(self):
         self.assertEqual(self.rd, self.td)
 
-    def test_can_instantiate_from_classmethod(self):
-        rd_from_td = readabledelta.from_timedelta(self.td)
+    def test_can_instantiate_from_timedelta(self):
+        rd_from_td = readabledelta(self.td)
         self.assertEqual(rd_from_td, self.rd)
+
+    def test_readable_zero(self):
+        self.assertEqual(str(readabledelta(0)), 'an instant')
 
     def test_readable_when_formatted(self):
         actual = '{}'.format(self.rd)
-        expected = '1 year, 35 days, 5 hours, 1 minute and 7 seconds'
+        expected = '57 weeks, 1 day, 5 hours, 1 minute, 7 seconds and 8 microseconds'
         self.assertEqual(actual, expected)
 
     def test_readable_when_printed(self):
@@ -49,11 +52,9 @@ class TestReadableDelta(TestCase):
     def test_repr_untouched(self):
         self.assertEqual(eval(repr(self.rd)), self.rd)
 
-    def test_can_instantiate_with_years(self):
-        rd1 = readabledelta(years=1, hours=1)
-        rd2 = readabledelta(days=365, hours=1)
-        self.assertEqual(rd1, rd2)
-        self.assertEqual(str(rd1), str(rd2))
+    def test_can_instantiate_with_weeks(self):
+        rd1 = readabledelta(weeks=2.5)
+        self.assertEqual(str(rd1), '2 weeks, 3 days and 12 hours')
 
     def test_can_add_to_datetime(self):
         actual = self.dt + self.rd
@@ -70,3 +71,7 @@ class TestReadableDelta(TestCase):
         tests = [rd + rd, rd + td, td + rd, td - rd, rd - td, -rd, abs(rd), rd * 2, rd / 2, rd // 2]
         for x in tests:
             self.assertIsInstance(x, timedelta)
+
+
+if __name__ == '__main__':
+    unittest.main()
