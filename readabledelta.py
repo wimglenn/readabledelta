@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from datetime import timedelta
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 
 class readabledelta(timedelta):
@@ -45,7 +45,7 @@ def to_string(delta, include_microseconds=False, include_sign=False):
     output = ['{} {}'.format(data[k], k[:-1] if data[k] == 1 else k) for k in keys if data[k] != 0]
 
     if not output:
-        result = 'now'
+        result = 'an instant'
     elif len(output) == 1:
         result, = output
     else:
