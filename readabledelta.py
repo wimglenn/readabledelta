@@ -32,10 +32,22 @@ def to_string(delta, include_sign=False):
     negative = delta < timedelta(0)
     delta = abs(delta)
 
-    # The unique and normalized way Python timedeltas are stored internally is: days, seconds, microseconds
-    # The calculations below rebase onto more human friendly keys
-    keys = 'years', 'weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds', 'microseconds'
-    data = OrderedDict.fromkeys(keys, 0)
+    # datetime.timedelta are normalized internally in Python to the units days, seconds, microseconds allowing a unique
+    # representation.  This is not the only possible basis; the calculations below rebase onto more human friendly keys
+    units = {
+        'millennia': None,
+        'centuries': 10,
+        'decades': 10,
+        'years': 10,
+        'weeks': 365.25/7,
+        'days': 7,
+        'hours': 24,
+        'minutes': 60,
+        'seconds': 60,
+        'milliseconds': 1000,
+        'microseconds': 1000,
+    }
+    data = OrderedDict.fromkeys(units, 0)
     # rebase days onto years, weeks, days
     data['years'], data['days'] = divmod(delta.days, 365)
     data['weeks'], data['days'] = divmod(data['days'], 7)
