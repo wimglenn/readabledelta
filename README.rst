@@ -34,4 +34,4 @@ True
 >>> readabledelta() == timedelta()
 True
 
-This means you can safely add or subtract them to ``datetime`` instances, there will be no nasty surprised with arithmetic.
+This means you can safely add or subtract them to ``datetime`` instances, there will be no unpleasant surprises with arithmetic.
