@@ -1,13 +1,5 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import unittest
-from datetime import datetime
-from datetime import timedelta
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO  # Python 3
+from datetime import datetime, timedelta
 
 from readabledelta import readabledelta
 
@@ -35,13 +27,6 @@ class TestReadableDelta(unittest.TestCase):
     def test_readable_when_formatted(self):
         actual = '{}'.format(self.rd)
         expected = '57 weeks, 1 day, 5 hours, 1 minute, 7 seconds and 8 microseconds'
-        self.assertEqual(actual, expected)
-
-    def test_readable_when_printed(self):
-        out = StringIO()
-        print(readabledelta(days=1), file=out, end=' spam')
-        actual = out.getvalue()
-        expected = '1 day spam'
         self.assertEqual(actual, expected)
 
     def test_skips_zero_values(self):
