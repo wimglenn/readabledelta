@@ -12,14 +12,13 @@ class TestReadableDelta(unittest.TestCase):
         self.rd = readabledelta(days=400, hours=5, minutes=1, seconds=7, microseconds=8)
 
     def test_is_a_timedelta(self):
-        self.assertIsInstance(self.rd, timedelta)
+        self.assertIsInstance(readabledelta(), timedelta)
 
     def test_has_equality_with_original(self):
-        self.assertEqual(self.rd, self.td)
+        self.assertEqual(readabledelta(minutes=1), timedelta(seconds=60))
 
-    def test_can_instantiate_from_timedelta(self):
-        rd_from_td = readabledelta(self.td)
-        self.assertEqual(rd_from_td, self.rd)
+    def test_can_instantiate_directly_from_timedelta(self):
+        self.assertEqual(readabledelta(timedelta(seconds=1)), readabledelta(seconds=1))
 
     def test_readable_zero(self):
         self.assertEqual(str(readabledelta(0)), 'an instant')
@@ -37,7 +36,7 @@ class TestReadableDelta(unittest.TestCase):
     def test_repr_untouched(self):
         self.assertEqual(eval(repr(self.rd)), self.rd)
 
-    def test_can_instantiate_with_weeks(self):
+    def test_can_instantiate_with_fractional_weeks(self):
         rd1 = readabledelta(weeks=2.5)
         self.assertEqual(str(rd1), '2 weeks, 3 days and 12 hours')
 
